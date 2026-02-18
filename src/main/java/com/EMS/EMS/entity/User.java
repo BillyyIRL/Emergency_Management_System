@@ -1,7 +1,8 @@
 package com.EMS.EMS.entity;
 
+import com.EMS.EMS.enums.Role;
 import jakarta.persistence.*;
-import java.util.Objects;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -11,38 +12,66 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String fullName;
+
     @Column(nullable = false, unique = true)
-    private String username;
+    private String email;
+
+    @Column(nullable = false, unique = true)
+    private String phoneNumber;
 
     @Column(nullable = false)
     private String password;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String role; // e.g., ADMIN, USER, STAFF
+    private Role role;
 
-    public User() {
-    }
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
 
-    public User(String username, String password, String role) {
-        this.username = username;
+    // Default constructor
+    public User() {}
+
+    // Main Constructor
+    public User(String fullName, String email, String phoneNumber, String password, Role role) {
+        this.fullName = fullName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
         this.password = password;
         this.role = role;
+        this.createdAt = LocalDateTime.now();
     }
+
+    // Getters and Setters
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public String getFullName() {
+        return fullName;
     }
 
-    public String getUsername() {
-        return username;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public String getPassword() {
@@ -53,33 +82,15 @@ public class User {
         this.password = password;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(id, user.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", role='" + role + '\'' +
-                '}';
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 }

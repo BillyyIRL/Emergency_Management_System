@@ -17,8 +17,7 @@ public class Ambulance {
     @Column(nullable = false)
     private String status; // e.g., AVAILABLE, BUSY, MAINTENANCE
 
-    public Ambulance() {
-    }
+    public Ambulance() {}
 
     public Ambulance(String vehicleNumber, String status) {
         this.vehicleNumber = vehicleNumber;

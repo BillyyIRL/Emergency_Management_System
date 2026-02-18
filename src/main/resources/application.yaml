@@ -1,3 +1,11 @@
 spring:
-  application:
-    name: EMS
+  datasource:
+    url: jdbc:postgresql://localhost:5432/emsdb
+    username: EMS
+    password: bonnie&clyde
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
