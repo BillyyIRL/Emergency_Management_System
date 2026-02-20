@@ -11,7 +11,8 @@ import com.EMS.EMS.enums.HospitalStatus;
 public class Hospital {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(nullable = false)
     private Long id;
 
     @Column(nullable = false)

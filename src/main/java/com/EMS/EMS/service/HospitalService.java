@@ -1,6 +1,7 @@
 package com.EMS.EMS.service;
 
 import com.EMS.EMS.dto.HospitalRegistrationRequest;
+import com.EMS.EMS.dto.RegisterRequest;
 import com.EMS.EMS.entity.Hospital;
 import com.EMS.EMS.entity.User;
 import com.EMS.EMS.enums.HospitalStatus;
@@ -35,22 +36,11 @@ public class HospitalService {
     // Register a hospital
     public Hospital registerHospital(HospitalRegistrationRequest request) {
 
-        // Check if email is already registered
         if (userRepository.existsByEmail(request.getAdminEmail())) {
             throw new RuntimeException("Email already registered");
         }
 
-        // Create the hospital admin user account
-        User adminUser = new User(
-                request.getAdminFullName(),
-                request.getAdminEmail(),
-                request.getAdminPhoneNumber(),
-                passwordEncoder.encode(request.getAdminPassword()),
-                Role.HOSPITAL_ADMIN
-        );
-        userRepository.save(adminUser);
-
-        // Create the hospital
+        // Save hospital first so it gets an ID
         Hospital hospital = new Hospital();
         hospital.setName(request.getName());
         hospital.setAddress(request.getAddress());
@@ -63,9 +53,43 @@ public class HospitalService {
         hospital.setHospitalStatus(HospitalStatus.PENDING);
         hospital.setIsActive(false);
 
-        return hospitalRepository.save(hospital);
+        Hospital savedHospital = hospitalRepository.save(hospital);
+
+        // Now create the admin and link them to the hospital
+        User adminUser = new User(
+                request.getAdminFullName(),
+                request.getAdminEmail(),
+                request.getAdminPhoneNumber(),
+                passwordEncoder.encode(request.getAdminPassword()),
+                Role.HOSPITAL_ADMIN
+        );
+        adminUser.setHospital(savedHospital);
+        userRepository.save(adminUser);
+
+        return savedHospital;
     }
 
+
+    //allows the hospital ADMIN to give someone within the hospital ADMIN power.
+    public void addStaffMember(Long hospitalId, RegisterRequest request) {
+
+        Hospital hospital = hospitalRepository.findById(hospitalId)
+                .orElseThrow(() -> new RuntimeException("Hospital not found with id: " + hospitalId));
+
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email already registered");
+        }
+
+        User staffUser = new User(
+                request.getFullName(),
+                request.getEmail(),
+                request.getPhoneNumber(),
+                passwordEncoder.encode(request.getPassword()),
+                Role.HOSPITAL_STAFF
+        );
+        staffUser.setHospital(hospital);
+        userRepository.save(staffUser);
+    }
 
     //update the number of available bed spaces
     public Hospital updateAvailableBeds(Long hospitalId, int availableBeds) {
@@ -86,7 +110,7 @@ public class HospitalService {
     }
 
 
-    // findNearestApprovedHospitals
+    // finds Nearest Approved Hospitals
     public List<Hospital> findNearestApprovedHospitals(double userLat, double userLon, int maxResults) {
 
         List<Hospital> approvedHospitals = hospitalRepository.findByHospitalStatus(HospitalStatus.APPROVED);
@@ -100,6 +124,7 @@ public class HospitalService {
                 .toList();
     }
 
+    //update hospital status6
     public Hospital updateHospitalStatus(Long hospitalId, HospitalStatus newStatus) {
         Hospital hospital = hospitalRepository.findById(hospitalId)
                 .orElseThrow(() -> new RuntimeException("Hospital not found with id: " + hospitalId));
@@ -121,15 +146,29 @@ public class HospitalService {
         return R * c;
     }
 
+    //Get the list of hospitals by has been approved by the admin
     public List<Hospital> getAllApprovedHospitals() {
         return hospitalRepository.findByHospitalStatus(HospitalStatus.APPROVED);
     }
 
+    //save the hospital register request to the db
     public Hospital saveHospital(Hospital hospital) {
         return hospitalRepository.save(hospital);
     }
 
+    //retrieve the hospitals stored in the db by their ID
     public Optional<Hospital> getHospitalById(Long hospitalId) {
         return hospitalRepository.findById(hospitalId);
     }
+
+    //Retrieve the list of pending order from the db
+    public List<Hospital> getPendingHospitals() {
+        return hospitalRepository.findByHospitalStatus(HospitalStatus.PENDING);
+    }
+
+    //getAllHospitals
+    public List<Hospital> getAllHospitals() {
+        return hospitalRepository.findAll();
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.EMS.EMS.controller;
 
 import com.EMS.EMS.dto.HospitalRegistrationRequest;
+import com.EMS.EMS.dto.RegisterRequest;
 import com.EMS.EMS.entity.Hospital;
 import com.EMS.EMS.enums.HospitalStatus;
 import com.EMS.EMS.service.HospitalService;
@@ -54,10 +55,6 @@ public class HospitalController {
         return hospitalService.findNearestApprovedHospitals(latitude, longitude, limit);
     }
 
-    // ==============================
-    // ADDED: Approve or Reject hospital (Admin)
-    // ==============================
-
     @PutMapping("/{id}/status")
     public Hospital updateStatus(
             @PathVariable Long id,
@@ -65,12 +62,18 @@ public class HospitalController {
         return hospitalService.updateHospitalStatus(id, hospitalStatus);
     }
 
-    // ==============================
-    // ADDED: Get all approved hospitals
-    // ==============================
-
+    //Get all approved hospitals
     @GetMapping("/approved")
     public List<Hospital> getAllApprovedHospitals() {
         return hospitalService.getAllApprovedHospitals();
+    }
+
+    //This lets the admin add staff members to their hospital
+    @PostMapping("/{hospitalId}/staff/add")
+    public ResponseEntity<String> addStaff(
+            @PathVariable Long hospitalId,
+            @RequestBody RegisterRequest request) {
+        hospitalService.addStaffMember(hospitalId, request);
+        return ResponseEntity.ok("Staff member added successfully");
     }
 }

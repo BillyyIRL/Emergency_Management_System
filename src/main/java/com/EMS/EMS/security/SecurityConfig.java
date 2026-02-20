@@ -38,16 +38,12 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/auth/register",
                                 "/auth/login",
-                                "/hospital/register"
+                                "/hospital/register",
+                                "/admin/**"
                         ).permitAll()
-
-                        // hospital system endpoints
-                        .requestMatchers("/hospital/**")
-                        .hasRole("HOSPITAL")
-
-                        // emergency user endpoints
-                        .requestMatchers("/emergency/**")
-                        .hasRole("USER")
+                        .requestMatchers("/admin/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/hospital/**").hasAnyRole("HOSPITAL_ADMIN", "HOSPITAL_STAFF")
+                        .requestMatchers("/emergency/**").hasAnyRole("PATIENT", "SUPER_ADMIN")
 
                         .anyRequest().authenticated()
                 )
