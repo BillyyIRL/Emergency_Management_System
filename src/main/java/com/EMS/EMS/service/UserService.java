@@ -50,4 +50,8 @@ public class UserService {
         return userRepository.findByEmail(email).orElse(null);
     }
 
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+    }
 }

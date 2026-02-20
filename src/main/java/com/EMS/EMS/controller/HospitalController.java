@@ -6,6 +6,7 @@ import com.EMS.EMS.entity.Hospital;
 import com.EMS.EMS.enums.HospitalStatus;
 import com.EMS.EMS.service.HospitalService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,6 +29,7 @@ public class HospitalController {
     }
 
     // Get hospital by ID
+    @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'HOSPITAL_STAFF')")
     @GetMapping("/{id}")
     public Hospital getHospital(@PathVariable Long id) {
         return hospitalService.getHospitalById(id)
@@ -35,6 +37,7 @@ public class HospitalController {
     }
 
     // Update available beds
+    @PreAuthorize("hasRole('HOSPITAL_ADMIN')")
     @PutMapping("/{id}/beds")
     public Hospital updateBeds(@PathVariable Long id, @RequestParam int beds) {
         return hospitalService.updateAvailableBeds(id, beds);
@@ -46,6 +49,8 @@ public class HospitalController {
         return hospitalService.getAllApprovedHospitals();
     }
 
+
+    @PreAuthorize("hasAnyRole('PATIENT', 'HOSPITAL_ADMIN', 'HOSPITAL_STAFF')")
     @GetMapping("/nearest")
     public List<Hospital> getNearestHospitals(
             @RequestParam double latitude,
@@ -55,6 +60,7 @@ public class HospitalController {
         return hospitalService.findNearestApprovedHospitals(latitude, longitude, limit);
     }
 
+    @PreAuthorize("hasRole('HOSPITAL_ADMIN')")
     @PutMapping("/{id}/status")
     public Hospital updateStatus(
             @PathVariable Long id,
@@ -63,6 +69,7 @@ public class HospitalController {
     }
 
     //Get all approved hospitals
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'HOSPITAL_ADMIN')")
     @GetMapping("/approved")
     public List<Hospital> getAllApprovedHospitals() {
         return hospitalService.getAllApprovedHospitals();

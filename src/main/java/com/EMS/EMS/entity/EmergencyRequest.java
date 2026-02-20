@@ -18,13 +18,13 @@ public class EmergencyRequest {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "emergency_type_id", nullable = false)
-    private EmergencyType emergencyType;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "emergency_type_id", nullable = false)
+//    private EmergencyType emergencyType;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private RequestStatus status;
+    private RequestStatus status = RequestStatus.PENDING;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "current_hospital_id")
@@ -37,7 +37,7 @@ public class EmergencyRequest {
     private Double longitude;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column  // remove nullable = false
     private TransportMode transportMode;
 
     @Column(nullable = false)
@@ -51,11 +51,11 @@ public class EmergencyRequest {
 
     public EmergencyRequest() {}
 
-    public EmergencyRequest(User user, EmergencyType emergencyType, RequestStatus status,
+    public EmergencyRequest(User user,RequestStatus status,
                             Double latitude, Double longitude, TransportMode transportMode,
                             int patientCount) {
         this.user = user;
-        this.emergencyType = emergencyType;
+//        this.emergencyType = emergencyType;
         this.status = status;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -75,8 +75,8 @@ public class EmergencyRequest {
     public void setId(Long id) { this.id = id; }
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
-    public EmergencyType getEmergencyType() { return emergencyType; }
-    public void setEmergencyType(EmergencyType emergencyType) { this.emergencyType = emergencyType; }
+//    public EmergencyType getEmergencyType() { return emergencyType; }
+//    public void setEmergencyType(EmergencyType emergencyType) { this.emergencyType = emergencyType; }
     public RequestStatus getStatus() { return status; }
     public void setStatus(RequestStatus status) { this.status = status; }
     public Hospital getCurrentHospital() { return currentHospital; }
@@ -122,3 +122,6 @@ public class EmergencyRequest {
                 '}';
     }
 }
+
+
+//ipkagun
