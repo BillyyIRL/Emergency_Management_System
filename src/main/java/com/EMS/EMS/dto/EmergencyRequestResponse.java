@@ -1,6 +1,5 @@
 package com.EMS.EMS.dto;
 
-
 import java.time.LocalDateTime;
 
 public class EmergencyRequestResponse {
@@ -12,10 +11,13 @@ public class EmergencyRequestResponse {
     private String status;
     private Boolean fullyAssigned;
     private LocalDateTime requestTime;
+    private String transportMode;
+    private String assignedHospital;
 
     public EmergencyRequestResponse(Long id, Double latitude, Double longitude,
                                     Integer patientCount, String status,
-                                    Boolean fullyAssigned, LocalDateTime requestTime) {
+                                    Boolean fullyAssigned, LocalDateTime requestTime,
+                                    String transportMode, String assignedHospital) {
         this.id = id;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -23,6 +25,8 @@ public class EmergencyRequestResponse {
         this.status = status;
         this.fullyAssigned = fullyAssigned;
         this.requestTime = requestTime;
+        this.transportMode = transportMode;
+        this.assignedHospital = assignedHospital;
     }
 
     public Long getId() { return id; }
@@ -32,4 +36,6 @@ public class EmergencyRequestResponse {
     public String getStatus() { return status; }
     public Boolean getFullyAssigned() { return fullyAssigned; }
     public LocalDateTime getRequestTime() { return requestTime; }
+    public String getTransportMode() { return transportMode; }
+    public String getAssignedHospital() { return assignedHospital; }
 }

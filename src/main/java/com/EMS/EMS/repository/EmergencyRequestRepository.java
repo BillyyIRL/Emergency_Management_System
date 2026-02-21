@@ -17,4 +17,7 @@ public interface EmergencyRequestRepository extends JpaRepository<EmergencyReque
     List<EmergencyRequest> findByIsHandledFalse();
 
     List<EmergencyRequest> findByFullyAssigned(Boolean fullyAssigned);
+
+    List<EmergencyRequest> findByUserId(Long userId);
+
 }

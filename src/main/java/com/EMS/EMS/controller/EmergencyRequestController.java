@@ -2,6 +2,7 @@ package com.EMS.EMS.controller;
 
 import com.EMS.EMS.dto.EmergencyRequestResponse;
 import com.EMS.EMS.dto.EmergencyResponseRequest;
+import com.EMS.EMS.dto.TransportResponseDTO;
 import com.EMS.EMS.entity.EmergencyAssignment;
 import com.EMS.EMS.entity.EmergencyRequest;
 import com.EMS.EMS.entity.User;
@@ -46,7 +47,9 @@ public class EmergencyRequestController {
                 saved.getPatientCount(),
                 saved.getStatus().name(),
                 saved.getFullyAssigned(),
-                saved.getRequestTime()
+                saved.getRequestTime(),
+                saved.getTransportMode() != null ? saved.getTransportMode().name() : null,
+                saved.getCurrentHospital() != null ? saved.getCurrentHospital().getName() : null
         );
 
         return ResponseEntity.ok(response);
@@ -96,11 +99,45 @@ public class EmergencyRequestController {
     // HOSPITAL RESPONDS TO EMERGENCY
     @PreAuthorize("hasAnyRole('HOSPITAL_ADMIN', 'HOSPITAL_STAFF')")
     @PostMapping("/respond")
-    public ResponseEntity<EmergencyRequest> respondToEmergency(
+    public ResponseEntity<EmergencyRequestResponse> respondToEmergency(
             @RequestBody EmergencyResponseRequest response) {
-        return ResponseEntity.ok(
-                emergencyRequestService.respondToEmergency(response)
+
+        EmergencyRequest saved = emergencyRequestService.respondToEmergency(response);
+
+        EmergencyRequestResponse dto = new EmergencyRequestResponse(
+                saved.getId(),
+                saved.getLatitude(),
+                saved.getLongitude(),
+                saved.getPatientCount(),
+                saved.getStatus().name(),
+                saved.getFullyAssigned(),
+                saved.getRequestTime(),
+                saved.getTransportMode() != null ? saved.getTransportMode().name() : null,
+                saved.getCurrentHospital() != null ? saved.getCurrentHospital().getName() : null
         );
+
+        return ResponseEntity.ok(dto);
+    }
+
+
+
+    //Transportation status to complete the emergency response.
+    @PreAuthorize("hasRole('PATIENT')")
+    @GetMapping("/{id}/transport")
+    public ResponseEntity<TransportResponseDTO> getTransportDetails(
+            @PathVariable Long id) {
+        return ResponseEntity.ok(
+                emergencyRequestService.handleTransportMode(id)
+        );
+    }
+
+
+    //Get the patients request history.
+    @PreAuthorize("hasRole('PATIENT')")
+    @GetMapping("/my-requests")
+    public ResponseEntity<List<EmergencyRequestResponse>> getMyRequests(
+            @AuthenticationPrincipal Long userId) {
+        return ResponseEntity.ok(emergencyRequestService.getMyRequests(userId));
     }
 }
 

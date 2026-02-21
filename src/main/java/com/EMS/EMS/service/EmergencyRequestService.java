@@ -1,10 +1,13 @@
 package com.EMS.EMS.service;
 
+import com.EMS.EMS.dto.EmergencyRequestResponse;
 import com.EMS.EMS.dto.EmergencyResponseRequest;
+import com.EMS.EMS.dto.TransportResponseDTO;
 import com.EMS.EMS.entity.EmergencyAssignment;
 import com.EMS.EMS.entity.EmergencyRequest;
 import com.EMS.EMS.entity.Hospital;
 import com.EMS.EMS.enums.RequestStatus;
+import com.EMS.EMS.enums.TransportMode;
 import com.EMS.EMS.repository.EmergencyAssignmentRepository;
 import com.EMS.EMS.repository.EmergencyRequestRepository;
 import jakarta.transaction.Transactional;
@@ -109,6 +112,9 @@ public class EmergencyRequestService {
         return emergencyAssignmentRepository.findByHospitalId(hospitalId);
     }
 
+
+
+
     @Transactional
     public EmergencyRequest respondToEmergency(EmergencyResponseRequest response) {
 
@@ -170,5 +176,83 @@ public class EmergencyRequestService {
         }
 
         return emergencyRequestRepository.save(request);
+    }
+
+
+
+
+    public TransportResponseDTO handleTransportMode(Long emergencyRequestId) {
+
+        EmergencyRequest request = emergencyRequestRepository.findById(emergencyRequestId)
+                .orElseThrow(() -> new RuntimeException("Emergency request not found"));
+
+        Hospital hospital = request.getCurrentHospital();
+
+        if (hospital == null) {
+            throw new RuntimeException("No hospital assigned to this request yet");
+        }
+
+        TransportResponseDTO response = new TransportResponseDTO();
+        response.setEmergencyRequestId(request.getId());
+        response.setHospitalName(hospital.getName());
+        response.setHospitalLatitude(hospital.getLatitude());
+        response.setHospitalLongitude(hospital.getLongitude());
+        response.setTransportMode(request.getTransportMode().name());
+
+        if (request.getTransportMode() == TransportMode.AMBULANCE) {
+
+            response.setMessage(
+                    "An ambulance is on the way to your location. " +
+                            "Please stay where you are. " +
+                            "Hospital: " + hospital.getName() +
+                            " Contact: " + hospital.getContactNumber()
+            );
+
+            notificationService.notifyPatientTransport(
+                    request.getUser(), hospital,
+                    TransportMode.AMBULANCE,
+                    request.getLatitude(),
+                    request.getLongitude()
+            );
+
+        }
+
+        else if (request.getTransportMode() == TransportMode.SELF) {
+
+            response.setMessage(
+                    "Please make your way to " + hospital.getName() +
+                            " at the following location. " +
+                            "Contact: " + hospital.getContactNumber()
+            );
+
+            notificationService.notifyPatientTransport(
+                    request.getUser(),
+                    hospital,
+                    TransportMode.SELF,
+                    hospital.getLatitude(),
+                    hospital.getLongitude()
+            );
+        }
+
+        return response;
+    }
+
+
+
+    //returns the list of requests saved to db from the patient using their ID.
+    public List<EmergencyRequestResponse> getMyRequests(Long userId) {
+        List<EmergencyRequest> requests = emergencyRequestRepository.findByUserId(userId);
+
+        return requests.stream().map(request -> new EmergencyRequestResponse(
+                request.getId(),
+                request.getLatitude(),
+                request.getLongitude(),
+                request.getPatientCount(),
+                request.getStatus().name(),
+                request.getFullyAssigned(),
+                request.getRequestTime(),
+                request.getTransportMode() != null ? request.getTransportMode().name() : null,
+                request.getCurrentHospital() != null ? request.getCurrentHospital().getName() : null
+        )).toList();
     }
 }

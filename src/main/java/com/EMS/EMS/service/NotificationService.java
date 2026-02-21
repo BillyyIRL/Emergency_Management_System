@@ -81,4 +81,41 @@ public class NotificationService {
                 (Object) message
         );
     }
+
+
+    //
+    public void notifyPatientTransport(User patient, Hospital hospital,
+                                       TransportMode transportMode,
+                                       Double targetLat, Double targetLng) {
+
+        Map<String, Object> message = new HashMap<>();
+        message.put("type", "TRANSPORT_UPDATE");
+        message.put("transportMode", transportMode.name());
+        message.put("hospitalName", hospital.getName());
+        message.put("hospitalContact", hospital.getContactNumber());
+        message.put("targetLatitude", targetLat);
+        message.put("targetLongitude", targetLng);
+        message.put("timestamp", LocalDateTime.now().toString());
+
+        if (transportMode == TransportMode.AMBULANCE) {
+            message.put("instruction", "Stay at your location. Ambulance is on the way.");
+        } else {
+            message.put("instruction", "Please drive to the hospital location provided.");
+        }
+
+        // Save to DB
+        Notification notification = new Notification();
+        notification.setHospitalId(hospital.getId());
+        notification.setMessage("Transport update: " + transportMode.name() +
+                " - " + hospital.getName());
+        notification.setSentAt(LocalDateTime.now());
+        notification.setRead(false);
+        notificationRepository.save(notification);
+
+        // Push to patient in real time
+        messagingTemplate.convertAndSend(
+                "/topic/patient/" + patient.getId(),
+                (Object) message
+        );
+    }
 }

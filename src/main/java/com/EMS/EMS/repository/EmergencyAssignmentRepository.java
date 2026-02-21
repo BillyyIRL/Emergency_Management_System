@@ -14,4 +14,5 @@ public interface EmergencyAssignmentRepository extends JpaRepository<EmergencyAs
     List<EmergencyAssignment> findByHospitalId(Long hospitalId);
 
     EmergencyAssignment findByEmergencyRequestIdAndHospitalId(Long emergencyRequestId, Long hospitalId);
+
 }

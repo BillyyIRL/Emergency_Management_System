@@ -30,6 +30,7 @@ public class SecurityConfig {
         this.jwtAuthFilter = jwtAuthFilter;
     }
 
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
@@ -43,11 +44,12 @@ public class SecurityConfig {
                                 "/auth/register",
                                 "/auth/login",
                                 "/hospital/register",
-                                "/admin/**"
+                                "/ws/**"
                         ).permitAll()
                         .requestMatchers("/admin/**").hasRole("SUPER_ADMIN")
                         .requestMatchers("/hospital/**").hasAnyRole("HOSPITAL_ADMIN", "HOSPITAL_STAFF")
                         .requestMatchers("/emergency/**").hasAnyRole("PATIENT", "SUPER_ADMIN", "HOSPITAL_ADMIN", "HOSPITAL_STAFF")
+                        .requestMatchers("/notifications/**").hasAnyRole("HOSPITAL_ADMIN", "HOSPITAL_STAFF", "PATIENT")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
