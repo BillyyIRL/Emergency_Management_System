@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Ignore application.yml to protect credentials
+src/main/resources/application.yml
